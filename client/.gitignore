@@ -1,0 +1,61 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# production
+/build
+/.next
+/out
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
+
+# next.js
+.next/
+/out/
+# nuxt.js
+.nuxt/
+dist/
+
+# scully
+/static/
+
+# vuepress
+.vuepress/dist
+
+# vue-cli
+/dist/
+/tmp/
+/public/
+
+# Serverless directories
+.serverless/
+.webpack/
+
+# Firebase hosting cache
+.firebase/
+
+# misc
+*.log
+*.pid
+*.seed
+*.db
