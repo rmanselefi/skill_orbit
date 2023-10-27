@@ -59,3 +59,4 @@ dist/
 *.pid
 *.seed
 *.db
+.env
