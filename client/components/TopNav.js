@@ -1,4 +1,4 @@
-import { Menu } from "antd";
+import { Menu, Dropdown, Space, Button } from "antd";
 import Link from "next/link";
 import axios from "axios";
 import {
@@ -30,6 +30,36 @@ const TopNav = () => {
     toast(data.message);
     router.push("/login");
   };
+  const menu = (
+    <Menu>
+      <Item key="2">Profile</Item>
+    </Menu>
+  );
+  const items = [
+    {
+      key: "1",
+      label: (
+        <Item
+          onClick={logout}
+          icon={<LogoutOutlined />}
+          className="float-right"
+        >
+          <span>Logout</span>
+        </Item>
+      ),
+    },
+    {
+      key: "2",
+      label: (
+        <Item className="float-right">
+          <Link href="/user/profile">
+            <span>Profile</span>
+          </Link>
+        </Item>
+      ),
+    },
+  ];
+
   return (
     <Menu mode="horizontal">
       <Item icon={<AppstoreOutlined />}>
@@ -55,13 +85,15 @@ const TopNav = () => {
         // if user is not null, then we know that the user is logged in
       }
       {user !== null && (
-        <Item
-          onClick={logout}
-          icon={<LogoutOutlined />}
-          className="float-right"
-        >
-          <span>Logout</span>
-        </Item>
+        <Space direction="vertical">
+          <Space wrap>
+            <Dropdown menu={{ items }}>
+              <Button>
+                {user.name} <CoffeeOutlined />
+              </Button>
+            </Dropdown>
+          </Space>
+        </Space>
       )}
     </Menu>
   );
