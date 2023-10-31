@@ -1,8 +1,19 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { SyncOutlined } from "@ant-design/icons";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { Context } from "../context";
+
+const { state, dispatch } = useContext(Context);
+
+const router = useRouter();
+console.log("STATE", state);
+
+useEffect(() => {
+  if (state.user !== null) router.push("/");
+}, [state.user]);
 
 const Register = () => {
   const [name, setName] = useState("Ryan");
@@ -71,10 +82,7 @@ const Register = () => {
         </form>
 
         <p className="text-center p-3">
-          Already registered? Login{" "}
-          <Link href="/login">
-            here
-          </Link>
+          Already registered? Login <Link href="/login">here</Link>
         </p>
       </div>
     </>
