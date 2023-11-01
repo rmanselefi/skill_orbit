@@ -7,6 +7,9 @@ import {
   LoginOutlined,
   LogoutOutlined,
   UserAddOutlined,
+  CarryOutFilled,
+  TeamOutlined
+
 } from "@ant-design/icons";
 
 import { useRouter } from "next/router";
@@ -67,6 +70,21 @@ const TopNav = () => {
           <span>App</span>
         </Link>
       </Item>
+
+      {user && user.role && user.role.includes("Instructor") ? (
+        <Item icon={<CarryOutFilled />}>
+          <Link href="/instructor/course/create">
+            <span>Create Course</span>
+          </Link>
+        </Item>
+      ) : (
+        <Item icon={<TeamOutlined />}>
+          <Link href="/user/become-instructor">
+            <span>Become Instructor</span>
+          </Link>
+        </Item>
+      )}
+
       {
         user === null && (
           <>

@@ -30,6 +30,7 @@ fs.readdirSync("./routes").map((r) =>
 app.use(cookieParser());
 app.use(csrfProtection);
 
+
 app.get("/api/csrf-token", (req, res) => {
     res.json({ csrfToken: req.csrfToken() });
 });
