@@ -54,9 +54,11 @@ export const login = async (req, res) => {
     });
     user.password = undefined;
     // send back as response to client
-    res.cookie("token", token, { httpOnly: true, SameSite: "None" });
 
-    res.json(user);
+    res.json({
+      token,
+      user,
+    });
   } catch (err) {
     console.log(err);
     return res.status(400).send("Error. Try again.");

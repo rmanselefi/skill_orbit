@@ -27,7 +27,7 @@ app.use(morgan("dev"));
 fs.readdirSync("./routes").map((r) =>
     app.use("/api", require(`./routes/${r}`))
 );
-app.use(cookieParser());
+app.use(cookieParser('1234'));
 app.use(csrfProtection);
 
 

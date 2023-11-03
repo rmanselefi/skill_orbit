@@ -8,8 +8,7 @@ import {
   LogoutOutlined,
   UserAddOutlined,
   CarryOutFilled,
-  TeamOutlined
-
+  TeamOutlined,
 } from "@ant-design/icons";
 
 import { useRouter } from "next/router";
@@ -33,14 +32,20 @@ const TopNav = () => {
     toast(data.message);
     router.push("/login");
   };
-  const menu = (
-    <Menu>
-      <Item key="2">Profile</Item>
-    </Menu>
-  );
+
   const items = [
     {
       key: "1",
+      label: (
+        <Item className="float-right">
+          <Link href="/user">
+            <span>Profile</span>
+          </Link>
+        </Item>
+      ),
+    },
+    {
+      key: "2",
       label: (
         <Item
           onClick={logout}
@@ -48,16 +53,6 @@ const TopNav = () => {
           className="float-right"
         >
           <span>Logout</span>
-        </Item>
-      ),
-    },
-    {
-      key: "2",
-      label: (
-        <Item className="float-right">
-          <Link href="/user/profile">
-            <span>Profile</span>
-          </Link>
         </Item>
       ),
     },
@@ -85,6 +80,14 @@ const TopNav = () => {
         </Item>
       )}
 
+      {user && user.role && user.role.includes("Instructor") && (
+        <Item icon={<TeamOutlined />}
+        className="float-end">
+          <Link href="/instructor">
+            <span>Instructor</span>
+          </Link>
+        </Item>
+      )}
       {
         user === null && (
           <>
@@ -103,6 +106,7 @@ const TopNav = () => {
         // if user is not null, then we know that the user is logged in
       }
       {user !== null && (
+        <div className="float-end" >
         <Space direction="vertical">
           <Space wrap>
             <Dropdown menu={{ items }}>
@@ -112,6 +116,7 @@ const TopNav = () => {
             </Dropdown>
           </Space>
         </Space>
+        </div>
       )}
     </Menu>
   );

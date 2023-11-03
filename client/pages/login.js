@@ -36,7 +36,8 @@ const Login = () => {
         type: "LOGIN",
         payload: data,
       });
-      window.localStorage.setItem("user", JSON.stringify(data));
+      window.localStorage.setItem("user", JSON.stringify(data.user));
+      window.localStorage.setItem("token", data.token);
 
       router.push("/");
       setLoading(false);
