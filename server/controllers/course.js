@@ -1,4 +1,6 @@
 import AWS from "aws-sdk";
+import slugify from "slugify";
+import Course from '../models/course'
 
 import { nanoid } from "nanoid";
 const s3 = new AWS.S3({
@@ -39,3 +41,24 @@ export const uploadImage = async (req, res) => {
     console.log(error);
   }
 };
+
+export const create = async (req, res) => {
+  try{
+    const alreadyExist = await Course.findOne({
+      slug: slugify(req.body.name.toLowerCase()),
+    }).exec();
+    if (alreadyExist) {
+      return res.status(400).send("Title is taken");
+    }
+    const course = await new Course({
+      slug: slugify(req.body.name),
+      instructor: req.user._id,
+      ...req.body,
+    }).save();
+    res.json(course);
+  }
+  catch(error){
+    console.log(error)
+    return res.status(400).send("Create course failed. Try again.")
+  }
+}

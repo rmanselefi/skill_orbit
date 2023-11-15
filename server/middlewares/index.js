@@ -1,5 +1,6 @@
 import { expressjwt } from "express-jwt";
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
+import User from "../models/user";
 
 export const requireSignin = expressjwt({
   getToken: (req, res) => {
@@ -34,4 +35,17 @@ export const verifyToken = (req, res, next) => {
       next();
     }
   );
+};
+
+export const isInstuctor = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).exec();
+    if (!user.role.includes("Instructor")) {
+      return res.sendStatus(403);
+    } else {
+      next();
+    }
+  } catch (err) {
+    console.log(err);
+  }
 };

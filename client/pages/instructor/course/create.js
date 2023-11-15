@@ -3,10 +3,12 @@ import InstructorRoute from "../../../routes/InstructorRoute";
 import { useState, useEffect } from "react";
 import { Select, Button } from "antd";
 import CreateCourseForm from "../../../components/forms/CreateCourseForm";
+import { useRouter } from "next/router";
 
 const { Option } = Select;
 
 const CreateCourse = () => {
+  const router = useRouter();
   const [values, setValues] = useState({
     name: "",
     description: "",
@@ -52,6 +54,7 @@ const CreateCourse = () => {
             headers: { "Content-Type": "application/json" },
           }
         );
+        setValues({ ...values, image: data });
       };
       reader.readAsDataURL(e.target.files[0]);
 
@@ -68,6 +71,7 @@ const CreateCourse = () => {
     try {
       const { data } = await axios.post(`/api/course`, {
         ...values,
+        image: values.image,
       });
       console.log(data);
       setValues({ ...values, loading: false, success: "Course is created" });

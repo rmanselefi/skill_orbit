@@ -1,5 +1,6 @@
 import User from "../models/user";
 import Stripe from "stripe";
+import Course from '../models/course'
 
 // Dynamically import the query-string package
 import queryString from "query-string";
@@ -78,4 +79,18 @@ export const currentInstructor = async (req, res) => {
         console.log(err);
         return res.status(400).send("Error. Try again.");
     }
+}
+
+export const instructorCourses = async (req, res) => {
+
+  try{
+    const courses = await Course.find({instructor: req.user._id})
+    .sort({createdAt: -1})
+    .exec()
+    res.json(courses)
+  }catch(error){
+    console.log(error)
+    return res.status(400).send("Error. Try again.")
+  }
+
 }
