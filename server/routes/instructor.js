@@ -10,6 +10,6 @@ import { makeInstructor,currentInstructor, getAccountStatus, instructorCourses }
 router.post("/make-instructor", verifyToken, makeInstructor);
 router.post("/get-account-status", verifyToken, getAccountStatus);
 router.get("/current-instructor", verifyToken, currentInstructor);
-router.post("/instructor-courses", verifyToken, instructorCourses);
+router.get("/instructor-courses", verifyToken, instructorCourses);
 
 module.exports = router;

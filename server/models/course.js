@@ -1,6 +1,40 @@
 const mongoose = require("mongoose");
-
 const { Schema } = mongoose;
+
+const lessonSchema = new Schema(
+  {
+    title: {
+      type: String,
+      trim: true,
+      min: 3,
+      max: 320,
+      required: true,
+    },
+    slug: {
+      type: String,
+      lowercase: true,
+    },
+    content: {
+      type: {},
+      min: 200,
+      max: 2000000,
+    },
+    video_link: {},
+    free_preview: {
+      type: Boolean,
+      default: false,
+    },
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: "Course",
+    },
+    published: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
 const courseSchema = new Schema(
   {
@@ -13,9 +47,7 @@ const courseSchema = new Schema(
     },
     slug: {
       type: String,
-      unique: true,
       lowercase: true,
-      index: true,
     },
     description: {
       type: {},
@@ -44,7 +76,7 @@ const courseSchema = new Schema(
       default: true,
     },
     instructor: {
-      type: Schema.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },

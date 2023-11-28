@@ -43,6 +43,7 @@ export const uploadImage = async (req, res) => {
 };
 
 export const create = async (req, res) => {
+  console.log("CREATE COURSE", req.body);
   try{
     const alreadyExist = await Course.findOne({
       slug: slugify(req.body.name.toLowerCase()),
@@ -53,6 +54,7 @@ export const create = async (req, res) => {
     const course = await new Course({
       slug: slugify(req.body.name),
       instructor: req.user._id,
+      title: req.body.description,
       ...req.body,
     }).save();
     res.json(course);

@@ -8,6 +8,7 @@ const CreateCourseForm = ({
   handleChange,
   setValues,
   values,
+  preview
 }) => {
   const children = [];
   for (let i = 9.99; i <= 100.99; i++) {
@@ -40,7 +41,7 @@ const CreateCourseForm = ({
           <Select
             style={{ width: "100%" }}
             size="large"
-            onChange={(v) => setValues({ ...values, paid: !values.paid })}
+            onChange={(v) => setValues({ ...values, paid: v, price: "" })}
           >
             <Option value={true}>Paid</Option>
             <Option value={false}>Free</Option>
@@ -88,9 +89,9 @@ const CreateCourseForm = ({
           </label>
         </div>
       </div>
-      {values.preview && (
+      {preview && (
         <div className="col-md-6">
-          <Avatar width={200} src={values.preview} />
+          <Avatar width={200} src={preview} />
         </div>
       )}
       <div className="row">

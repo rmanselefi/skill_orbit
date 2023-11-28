@@ -38,6 +38,7 @@ export const verifyToken = (req, res, next) => {
 };
 
 export const isInstuctor = async (req, res, next) => {
+  console.log("IS INSTRUCTOR", req.user);
   try {
     const user = await User.findById(req.user._id).exec();
     if (!user.role.includes("Instructor")) {

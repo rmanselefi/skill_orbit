@@ -5,7 +5,7 @@ const router = express.Router();
 import { isInstuctor, verifyToken } from "../middlewares";
 
 // import controllers
-import { uploadImage } from "../controllers/course";
+import { uploadImage, create } from "../controllers/course";
 
 router.post("/course/upload-image", verifyToken, uploadImage);
 
