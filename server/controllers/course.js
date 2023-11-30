@@ -1,6 +1,6 @@
 import AWS from "aws-sdk";
 import slugify from "slugify";
-import Course from '../models/course'
+import Course from "../models/course";
 
 import { nanoid } from "nanoid";
 const s3 = new AWS.S3({
@@ -10,7 +10,6 @@ const s3 = new AWS.S3({
   apiVersion: process.env.AWS_API_VERSION,
 });
 export const uploadImage = async (req, res) => {
-
   try {
     const { image } = req.body;
     if (!image) return res.status(400).send("No image");
@@ -44,7 +43,7 @@ export const uploadImage = async (req, res) => {
 
 export const create = async (req, res) => {
   console.log("CREATE COURSE", req.body);
-  try{
+  try {
     const alreadyExist = await Course.findOne({
       slug: slugify(req.body.name.toLowerCase()),
     }).exec();
@@ -58,9 +57,21 @@ export const create = async (req, res) => {
       ...req.body,
     }).save();
     res.json(course);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send("Create course failed. Try again.");
   }
-  catch(error){
-    console.log(error)
-    return res.status(400).send("Create course failed. Try again.")
+};
+
+export const getCourse = async (req, res) => {
+  try {
+    const course = await Course.findOne({
+      slug: req.params.slug,
+    })
+      .populate("instructor", "_id name")
+      .exec();
+    res.json(course);
+  } catch (err) {
+    console.log(err);
   }
-}
+};
