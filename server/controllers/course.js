@@ -1,6 +1,7 @@
 import AWS from "aws-sdk";
 import slugify from "slugify";
 import Course from "../models/course";
+import fs from "fs";
 
 import { nanoid } from "nanoid";
 const s3 = new AWS.S3({
@@ -73,5 +74,55 @@ export const getCourse = async (req, res) => {
     res.json(course);
   } catch (err) {
     console.log(err);
+  }
+};
+
+export const uploadVideo = async (req, res) => {
+  try {
+    console.log("REQ.BODY", req.body);
+
+    const { video } = req.files;
+    console.log("REQ.FILE", video.type);
+    if (!video) return res.status(400).send("No video");
+    const params = {
+      Bucket: "edemybucket",
+      Key: `${nanoid()}.${video.type.split(".")[1]}`,
+      Body: fs.readFileSync(video.path),
+      ACL: "public-read",
+      ContentType: "video/mp4",
+    };
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.log(err);
+        return res.sendStatus(400);
+      }
+      console.log(data);
+      res.send(data);
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const removeVideo = async (req, res) => {
+  try {
+    console.log("REQ.BODY", req.body);
+    console.log("REQ.FILE", req.files);
+    const { Bucket, Key } = req.body;
+    if (!video) return res.status(400).send("No video");
+    const params = {
+      Bucket,
+      Key,
+    };
+    s3.deleteObject(params, (err, data) => {
+      if (err) {
+        console.log(err);
+        return res.sendStatus(400);
+      }
+      console.log(data);
+      res.send({ ok: true });
+    });
+  } catch (error) {
+    console.log(error);
   }
 };

@@ -5,21 +5,98 @@ import axios from "../../../../axios/axios";
 import InstructorRoute from "../../../../routes/InstructorRoute";
 import { Avatar, Tooltip, Button, Modal } from "antd";
 import ReactMarkdown from "react-markdown";
+import { toast } from "react-toastify";
+import AddLessonForm from "../../../../components/forms/AddLessonForm";
 
 const CourseView = () => {
   const [course, setCourse] = useState({});
   const [visible, setVisible] = useState(false);
   const { slug } = useRouter().query;
+  const [values, setValues] = useState({
+    title: "",
+    content: "",
+    video: {},
+  });
+
+  const [uploading, setUploading] = useState(false);
+
+  const [uploadButtonText, setUploadButtonText] = useState("Upload Video");
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     loadCourse();
   }, []);
 
   const loadCourse = async () => {
+    if (!slug) return;
     const { data } = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/course/${slug}`
     );
     setCourse(data);
+  };
+
+  const handleAddLesson = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/course/lesson/${slug}`,
+        values
+      );
+      setValues({ ...values, title: "", content: "", video: {} });
+      setCourse(data);
+      setVisible(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleVideoUpload = async (e) => {
+    try {
+      const file = e.target.files[0];
+      setUploadButtonText(file.name);
+      setUploading(true);
+
+      const videoData = new FormData();
+      videoData.append("video", file);
+      // save progress bar and send video as form data to backend
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/course/upload-video`,
+
+        videoData,
+        {
+          "Content-Type": "multipart/form-data",
+          onUploadProgress: (e) =>
+            setProgress(Math.round((100 * e.loaded) / e.total)),
+        }
+      );
+      // once response is received, set video in the state
+      console.log(data);
+      setValues({ ...values, video: data });
+      setUploading(false);
+      toast("Video upload success");
+    } catch (error) {
+      console.log(error);
+      setUploading(false);
+      toast("Video upload failed");
+    }
+  };
+
+  const handleVideoRemove = async () => {
+    try {
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/course/remove-video`,
+        values.video
+      );
+      console.log(data);
+      setValues({ ...values, video: {} });
+      setProgress(0);
+      setUploadButtonText("Upload another Video");
+      setUploading(false);
+    } catch (error) {
+      console.log(error);
+      setUploading(false);
+      toast("Video remove failed");
+    }
   };
 
   return (
@@ -76,36 +153,20 @@ const CourseView = () => {
             <Modal
               title="+ Add Lesson"
               centered
-              visible={visible}
+              open={visible}
               onCancel={() => setVisible(false)}
               footer={null}
             >
-              <div className="container pt-3">
-                <form>
-                  <input
-                    type="text"
-                    className="form-control square"
-                    placeholder="Title"
-                    autoFocus
-                  />
-                  <textarea
-                    className="form-control mt-3 mb-3"
-                    cols="7"
-                    rows="7"
-                    placeholder="Description"
-                  ></textarea>
-                  <div className="d-grid gap-2">
-                    <Button
-                      className="col mt-3"
-                      type="primary"
-                      size="large"
-                      shape="round"
-                    >
-                      Save
-                    </Button>
-                  </div>
-                </form>
-              </div>
+              <AddLessonForm
+                values={values}
+                setValues={setValues}
+                handleAddLesson={handleAddLesson}
+                uploading={uploading}
+                uploadButtonText={uploadButtonText}
+                handleVideoUpload={handleVideoUpload}
+                progress={progress}
+                handleVideoRemove={handleVideoRemove}
+              />
             </Modal>
           </div>
         </div>
