@@ -4,6 +4,7 @@ import Course from "../models/course";
 import fs from "fs";
 
 import { nanoid } from "nanoid";
+import { Console } from "console";
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -79,7 +80,12 @@ export const getCourse = async (req, res) => {
 
 export const uploadVideo = async (req, res) => {
   try {
-    console.log("REQ.BODY", req.body);
+    console.log("REQ.BODY", req.user._id);
+    console.log("Param",req.params.instructorid)
+
+    if (req.user._id.toString() !== req.params.instructorid) {
+      return res.status(400).send("Unauthorized");
+    }
 
     const { video } = req.files;
     console.log("REQ.FILE", video.type);
@@ -126,3 +132,30 @@ export const removeVideo = async (req, res) => {
     console.log(error);
   }
 };
+
+export const addLesson = async (req, res) => {
+  try {
+    const { slug, instructorid } = req.params;
+    const { title, content, video } = req.body;
+    console.log(req.body);
+    if (!title) return res.status(400).send("Title is required");
+    if (!content) return res.status(400).send("Content is required");
+    if (!slug) return res.status(400).send("Slug is required");
+    if (!video) return res.status(400).send("Video is required");
+
+    const updated = await Course.findOneAndUpdate(
+      { slug, instructor: instructorid },
+      {
+        $push: { lessons: { title, content, video,slug: slugify(title) } },
+      },
+      { new: true }
+    )
+      .populate("instructor", "_id name")
+      .exec();
+    console.log("updated", updated);
+    res.json(updated);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send("Add lesson failed");
+  }
+}

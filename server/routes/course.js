@@ -11,12 +11,14 @@ import {
   create,
   getCourse,
   uploadVideo,
-  removeVideo
+  removeVideo,
+  addLesson
 } from "../controllers/course";
 
 router.post("/course/upload-image", verifyToken, uploadImage);
-router.post("/course/upload-video", verifyToken, formidable(), uploadVideo);
-router.post("/course/remove-video", verifyToken, removeVideo);
+router.post("/course/upload-video/:instructorid", verifyToken, formidable(), uploadVideo);
+router.post("/course/remove-video/:instructorid", verifyToken, removeVideo);
+router.post("/course/lesson/:slug/:instructorid", verifyToken, isInstuctor, addLesson);
 
 router.post("/course", verifyToken, isInstuctor, create);
 router.get("/course/:slug", getCourse);

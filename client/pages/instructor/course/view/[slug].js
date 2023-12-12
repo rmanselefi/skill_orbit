@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { EditOutlined, CheckOutlined, UploadOutlined } from "@ant-design/icons";
 import axios from "../../../../axios/axios";
 import InstructorRoute from "../../../../routes/InstructorRoute";
-import { Avatar, Tooltip, Button, Modal } from "antd";
+import { Avatar, Tooltip, Button, Modal, List } from "antd";
 import ReactMarkdown from "react-markdown";
 import { toast } from "react-toastify";
 import AddLessonForm from "../../../../components/forms/AddLessonForm";
@@ -11,7 +11,7 @@ import AddLessonForm from "../../../../components/forms/AddLessonForm";
 const CourseView = () => {
   const [course, setCourse] = useState({});
   const [visible, setVisible] = useState(false);
-  const { slug } = useRouter().query;
+  const { query } = useRouter();
   const [values, setValues] = useState({
     title: "",
     content: "",
@@ -23,11 +23,16 @@ const CourseView = () => {
   const [uploadButtonText, setUploadButtonText] = useState("Upload Video");
   const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    loadCourse();
-  }, []);
+  const [slug, setSlug] = useState();
 
-  const loadCourse = async () => {
+  useEffect(() => {
+    if (query.slug) {
+      setSlug(query.slug);
+      loadCourse(query.slug);
+    }
+  }, [query.slug]);
+
+  const loadCourse = async (slug) => {
     if (!slug) return;
     const { data } = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/course/${slug}`
@@ -39,14 +44,18 @@ const CourseView = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/course/lesson/${slug}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/course/lesson/${slug}/${course.instructor._id}`,
         values
       );
       setValues({ ...values, title: "", content: "", video: {} });
-      setCourse(data);
+      
       setVisible(false);
+      setUploadButtonText("Upload Video");
+      setCourse(data);
+      toast("Lesson added");
     } catch (error) {
       console.log(error);
+      toast("Lesson add failed")
     }
   };
 
@@ -60,7 +69,7 @@ const CourseView = () => {
       videoData.append("video", file);
       // save progress bar and send video as form data to backend
       const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/course/upload-video`,
+        `${process.env.NEXT_PUBLIC_API_URL}/course/upload-video/${course.instructor._id}`,
 
         videoData,
         {
@@ -84,7 +93,7 @@ const CourseView = () => {
   const handleVideoRemove = async () => {
     try {
       const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/course/remove-video`,
+        `${process.env.NEXT_PUBLIC_API_URL}/course/remove-video/${course.instructor._id}}`,
         values.video
       );
       console.log(data);
@@ -149,6 +158,28 @@ const CourseView = () => {
             >
               Add Lesson
             </Button>
+
+            
+            <div className="row pb-5" >
+              <div className="col lesson-list" >
+                <h4>
+                  {course && course.lessons && course.lessons.length} Lessons
+                </h4>
+                <List
+                  itemLayout="horizontal"
+                  dataSource={course && course.lessons}
+                  renderItem={(item, index) => (
+                    <List.Item>
+                      <List.Item.Meta
+                        avatar={<Avatar>{index + 1}</Avatar>}
+                        title={item.title}
+                      ></List.Item.Meta>
+                    </List.Item>
+                  )}
+                ></List>
+              </div>
+            </div>
+
 
             <Modal
               title="+ Add Lesson"
