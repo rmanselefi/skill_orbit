@@ -81,7 +81,7 @@ export const getCourse = async (req, res) => {
 export const uploadVideo = async (req, res) => {
   try {
     console.log("REQ.BODY", req.user._id);
-    console.log("Param",req.params.instructorid)
+    console.log("Param", req.params.instructorid);
 
     if (req.user._id.toString() !== req.params.instructorid) {
       return res.status(400).send("Unauthorized");
@@ -146,7 +146,7 @@ export const addLesson = async (req, res) => {
     const updated = await Course.findOneAndUpdate(
       { slug, instructor: instructorid },
       {
-        $push: { lessons: { title, content, video,slug: slugify(title) } },
+        $push: { lessons: { title, content, video, slug: slugify(title) } },
       },
       { new: true }
     )
@@ -158,4 +158,22 @@ export const addLesson = async (req, res) => {
     console.log(error);
     return res.status(400).send("Add lesson failed");
   }
-}
+};
+
+export const update = async (req, res) => {
+  const { slug } = req.params;
+  try {
+    const course = await Course.findOne({ slug }).exec();
+
+    if (req.user._id.toString() !== course.instructor.toString()) {
+      return res.status(400).send("Unauthorized");
+    }
+    const updated = await Course.findOneAndUpdate({ slug }, req.body, {
+      new: true,
+    }).exec();
+    res.json(updated);
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send("Course update failed");
+  }
+};

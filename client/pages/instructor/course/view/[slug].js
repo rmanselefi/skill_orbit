@@ -11,6 +11,7 @@ import AddLessonForm from "../../../../components/forms/AddLessonForm";
 const CourseView = () => {
   const [course, setCourse] = useState({});
   const [visible, setVisible] = useState(false);
+  const router = useRouter();
   const { query } = useRouter();
   const [values, setValues] = useState({
     title: "",
@@ -48,14 +49,14 @@ const CourseView = () => {
         values
       );
       setValues({ ...values, title: "", content: "", video: {} });
-      
+
       setVisible(false);
       setUploadButtonText("Upload Video");
       setCourse(data);
       toast("Lesson added");
     } catch (error) {
       console.log(error);
-      toast("Lesson add failed")
+      toast("Lesson add failed");
     }
   };
 
@@ -133,7 +134,12 @@ const CourseView = () => {
 
                 <div className="d-flex pt-4 col">
                   <Tooltip title="Edit">
-                    <EditOutlined className="h5 pointer text-warning mr-4" />
+                    <EditOutlined
+                      onClick={() =>
+                        router.push(`/instructor/course/edit/${slug}`)
+                      }
+                      className="h5 pointer text-warning mr-4"
+                    />
                   </Tooltip>
                   <Tooltip title="Publish">
                     <CheckOutlined className="h5 pointer text-danger" />
@@ -159,9 +165,8 @@ const CourseView = () => {
               Add Lesson
             </Button>
 
-            
-            <div className="row pb-5" >
-              <div className="col lesson-list" >
+            <div className="row pb-5">
+              <div className="col lesson-list">
                 <h4>
                   {course && course.lessons && course.lessons.length} Lessons
                 </h4>
@@ -179,7 +184,6 @@ const CourseView = () => {
                 ></List>
               </div>
             </div>
-
 
             <Modal
               title="+ Add Lesson"

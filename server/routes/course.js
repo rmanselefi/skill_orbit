@@ -12,7 +12,8 @@ import {
   getCourse,
   uploadVideo,
   removeVideo,
-  addLesson
+  addLesson,
+  update
 } from "../controllers/course";
 
 router.post("/course/upload-image", verifyToken, uploadImage);
@@ -22,5 +23,7 @@ router.post("/course/lesson/:slug/:instructorid", verifyToken, isInstuctor, addL
 
 router.post("/course", verifyToken, isInstuctor, create);
 router.get("/course/:slug", getCourse);
+
+router.put("/course/:slug", verifyToken, isInstuctor, update);
 
 module.exports = router;

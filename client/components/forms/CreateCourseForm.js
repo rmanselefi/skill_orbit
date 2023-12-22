@@ -8,7 +8,8 @@ const CreateCourseForm = ({
   handleChange,
   setValues,
   values,
-  preview
+  preview,
+  editPage = false,
 }) => {
   const children = [];
   for (let i = 9.99; i <= 100.99; i++) {
@@ -106,7 +107,11 @@ const CreateCourseForm = ({
               size="large"
               shape="round"
             >
-              {values.loading ? "Saving..." : "Save & Continue"}
+              {values.loading
+                ? "Saving..."
+                : editPage
+                ? " Edit Course "
+                : "Save & Continue"}
             </Button>
           </div>
         </div>
