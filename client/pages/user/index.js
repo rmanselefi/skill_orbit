@@ -11,7 +11,9 @@ const UserIndex = () => {
   return (
     <UserRoute>
       <div>
-        <h1 className="jumbotron text-center square">User Dashboard</h1>
+        <h1 className="jumbotron text-center bg-primary square">
+          User Dashboard
+        </h1>
       </div>
     </UserRoute>
   );

@@ -6,13 +6,12 @@ import CreateCourseForm from "../../../components/forms/CreateCourseForm";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
-
 const { Option } = Select;
 
 const CreateCourse = () => {
   const router = useRouter();
   const [values, setValues] = useState({
-    title:"",
+    title: "",
     name: "",
     description: "",
     price: "",
@@ -62,25 +61,30 @@ const CreateCourse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/course`, {
-        ...values,
-        title: values.name,
-      });
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/course`,
+        {
+          ...values,
+          title: values.name,
+        }
+      );
       console.log(data);
-      setValues({ ...values, loading: false});
-      router.push("/instructor"); 
+      setValues({ ...values, loading: false });
+      router.push("/instructor");
       toast.success("Course created");
     } catch (err) {
       console.log(err);
       setValues({ ...values, loading: false });
       toast.error("Course create failed. Try again.");
-      
     }
   };
 
   return (
     <InstructorRoute>
-      <h1 className="jumbotron text-center square"> Create Course</h1>
+      <h1 className="jumbotron text-center bg-primary square">
+        {" "}
+        Create Course
+      </h1>
 
       <div className="pt-3 pb-3">
         <CreateCourseForm

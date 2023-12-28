@@ -200,7 +200,7 @@ export const updateLesson = async (req, res) => {
     const { slug, lessonid } = req.params;
     const { title, content, video, free_preview } = req.body;
     const course = await Course.findOne({ slug }).exec();
-    if(req.user._id.toString() !== course.instructor._id.toString()) {
+    if (req.user._id.toString() !== course.instructor._id.toString()) {
       return res.status(400).send("Unauthorized");
     }
     if (!title) return res.status(400).send("Title is required");
@@ -228,5 +228,54 @@ export const updateLesson = async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(400).send("Update lesson failed");
+  }
+};
+
+export const publishCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const course = await Course.findById(courseId).select("instructor").exec();
+    if (req.user._id.toString() !== course.instructor._id.toString()) {
+      return res.status(400).send("Unauthorized");
+    }
+    let updated = await Course.findByIdAndUpdate(
+      courseId,
+      { published: true },
+      { new: true }
+    ).exec();
+    res.json(updated);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send("Publish course failed");
+  }
+};
+
+export const unpublishCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const course = await Course.findById(courseId).select("instructor").exec();
+    if (req.user._id.toString() !== course.instructor._id.toString()) {
+      return res.status(400).send("Unauthorized");
+    }
+    let updated = await Course.findByIdAndUpdate(
+      courseId,
+      { published: false },
+      { new: true }
+    ).exec();
+    res.json(updated);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send("Unpublish course failed");
+  }
+};
+
+export const getCourses = async (req, res) => {
+  try {
+    const all = await Course.find({ published: true })
+      .populate("instructor", "_id name")
+      .exec();
+    res.json(all);
+  } catch (error) {
+    console.log(error);
   }
 };

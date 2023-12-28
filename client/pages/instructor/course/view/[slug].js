@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { EditOutlined, CheckOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  CheckOutlined,
+  UploadOutlined,
+  QuestionOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import axios from "../../../../axios/axios";
 import InstructorRoute from "../../../../routes/InstructorRoute";
 import { Avatar, Tooltip, Button, Modal, List } from "antd";
@@ -109,6 +115,37 @@ const CourseView = () => {
     }
   };
 
+  const handlePublish = async (e) => {
+    let answer = window.confirm(
+      "Once you publish your course, it will be live in the marketplace for students to enroll. Are you sure you want to publish this course?"
+    );
+    if (!answer) return;
+    try {
+      const { data } = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/course/publish/${course._id}`
+      );
+      setCourse(data);
+      toast("Congrats! Your course is now live in the marketplace");
+    } catch (error) {
+      toast("Course publish failed. Try again");
+    }
+  };
+  const handleUnpublish = async (e) => {
+    let answer = window.confirm(
+      "Once you unpublish your course, it will no longer be available for students to enroll. Are you sure you want to unpublish this course?"
+    );
+    if (!answer) return;
+    try {
+      const { data } = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/course/unpublish/${course._id}`
+      );
+      setCourse(data);
+      toast("Your course is now unpublished");
+    } catch (error) {
+      toast("Course unpublish failed. Try again");
+    }
+  };
+
   return (
     <InstructorRoute>
       {/* <h1>{JSON.stringify(course)}</h1> */}
@@ -141,13 +178,33 @@ const CourseView = () => {
                       className="h5 pointer text-warning mr-4"
                     />
                   </Tooltip>
-                  <Tooltip title="Publish">
-                    <CheckOutlined className="h5 pointer text-danger" />
-                  </Tooltip>
+                  {course.lessons && course.lessons.length < 5 ? (
+                    <Tooltip title="Min 5 lessons required to publish">
+                      <QuestionOutlined
+                        className="h5 pointer text-danger"
+                        disabled
+                      />
+                    </Tooltip>
+                  ) : course.published ? (
+                    <Tooltip title="Unpublish">
+                      <CloseOutlined
+                        onClick={handleUnpublish}
+                        className="h5 pointer text-danger"
+                      />
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Publish">
+                      <CheckOutlined
+                        onClick={handlePublish}
+                        className="h5 pointer text-success"
+                      />
+                    </Tooltip>
+                  )}
                 </div>
               </div>
             </div>
           </div>
+          <hr />
           <div className="row">
             <div className="col">
               <ReactMarkdown>{course.description}</ReactMarkdown>

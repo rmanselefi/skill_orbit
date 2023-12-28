@@ -52,7 +52,7 @@ const CreateCourseForm = ({
         {values.paid && (
           <div className="form-group col-4">
             <Select
-              defaultValue="$9.99"
+              value={values.price}
               style={{ width: "100%" }}
               onChange={(v) => setValues({ ...values, price: v })}
               tokenSeparators={[,]}
