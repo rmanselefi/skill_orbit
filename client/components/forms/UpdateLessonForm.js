@@ -1,12 +1,13 @@
 import React from "react";
-import { Button, Progress, Tooltip } from "antd";
+import { Button, Progress, Switch, Tooltip } from "antd";
 import { CloseOutlined } from "@ant-design/icons";
+import ReactPlayer from "react-player";
 
-function AddLessonForm(props) {
+function UpdateLessonForm(props) {
   const {
     values,
     setValues,
-    handleAddLesson,
+    handleUpdateLesson,
     uploading,
     uploadButtonText,
     handleVideoUpload,
@@ -15,7 +16,7 @@ function AddLessonForm(props) {
   } = props;
   return (
     <div className="container pt-3">
-      <form onSubmit={handleAddLesson}>
+      <form onSubmit={handleUpdateLesson}>
         <input
           type="text"
           className="form-control"
@@ -34,7 +35,18 @@ function AddLessonForm(props) {
           value={values.content}
         ></textarea>
 
-        <div className="d-flex justify-content-center">
+        <div>
+          {!uploading && values?.video?.Location && (
+            <div>
+              <ReactPlayer
+                url={values?.video?.Location}
+                width="410px"
+                height="240px"
+                className="mt-3"
+                controls
+              />
+            </div>
+          )}
           <label className="btn btn-dark btn-block text-left mt-3">
             {uploadButtonText}
             <input
@@ -44,20 +56,6 @@ function AddLessonForm(props) {
               onChange={handleVideoUpload}
             />
           </label>
-
-          {!uploading && values.video.Location && (
-            <Tooltip title="Remove">
-              <span
-                onClick={() => setValues({ ...values, video: {} })}
-                className="pt-1 pl-3"
-              >
-                <CloseOutlined
-                  className="text-danger d-flex justify-content-center pt-3"
-                  onClick={handleVideoRemove}
-                />
-              </span>
-            </Tooltip>
-          )}
         </div>
 
         {progress > 0 && (
@@ -67,13 +65,25 @@ function AddLessonForm(props) {
             max="100"
           />
         )}
+
+        <div className="d-flex justify-content-between">
+          <span className="pt-3 badge">Preview</span>
+          <Switch
+            className="float-end mt-3"
+            disabled={uploading}
+            checked={values.free_preview}
+            name="free_preview"
+            onChange={(v) => setValues({ ...values, free_preview: v })}
+          />
+        </div>
+
         <div className="d-grid gap-2">
           <Button
             className="col mt-3"
             type="primary"
             size="large"
             shape="round"
-            onClick={handleAddLesson}
+            onClick={handleUpdateLesson}
             loading={uploading}
           >
             Save
@@ -84,4 +94,4 @@ function AddLessonForm(props) {
   );
 }
 
-export default AddLessonForm;
+export default UpdateLessonForm;

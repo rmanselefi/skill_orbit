@@ -92,7 +92,7 @@ export const uploadVideo = async (req, res) => {
     if (!video) return res.status(400).send("No video");
     const params = {
       Bucket: "edemybucket",
-      Key: `${nanoid()}.${video.type.split(".")[1]}`,
+      Key: `${nanoid()}.${video.type.split("/")[1]}`,
       Body: fs.readFileSync(video.path),
       ACL: "public-read",
       ContentType: "video/mp4",
@@ -175,5 +175,58 @@ export const update = async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.status(400).send("Course update failed");
+  }
+};
+
+export const removeLesson = async (req, res) => {
+  const { slug, lessonid } = req.params;
+  const course = await Course.findOne({ slug }).exec();
+
+  if (req.user._id.toString() !== course.instructor.toString()) {
+    return res.status(400).send("Unauthorized");
+  }
+
+  const deleted = await Course.findByIdAndDelete(course._id, {
+    $pull: { lessons: { _id: lessonid } },
+  }).exec();
+
+  res.json({
+    ok: true,
+  });
+};
+
+export const updateLesson = async (req, res) => {
+  try {
+    const { slug, lessonid } = req.params;
+    const { title, content, video, free_preview } = req.body;
+    const course = await Course.findOne({ slug }).exec();
+    if(req.user._id.toString() !== course.instructor._id.toString()) {
+      return res.status(400).send("Unauthorized");
+    }
+    if (!title) return res.status(400).send("Title is required");
+    if (!content) return res.status(400).send("Content is required");
+    if (!slug) return res.status(400).send("Slug is required");
+    if (!video) return res.status(400).send("Video is required");
+
+    const updated = await Course.updateOne(
+      { slug, "lessons._id": lessonid },
+      {
+        $set: {
+          "lessons.$.title": title,
+          "lessons.$.content": content,
+          "lessons.$.video": video,
+          "lessons.$.free_preview": free_preview,
+          "lessons.$.slug": slugify(title),
+        },
+      },
+      { new: true }
+    )
+      .populate("instructor", "_id name")
+      .exec();
+    console.log("updated", updated);
+    res.json(updated);
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send("Update lesson failed");
   }
 };

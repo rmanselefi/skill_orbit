@@ -80,7 +80,7 @@ const CourseView = () => {
         }
       );
       // once response is received, set video in the state
-      console.log(data);
+      console.log("data", data);
       setValues({ ...values, video: data });
       setUploading(false);
       toast("Video upload success");
