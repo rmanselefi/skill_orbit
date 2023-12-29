@@ -5,6 +5,7 @@ import fs from "fs";
 
 import { nanoid } from "nanoid";
 import { Console } from "console";
+import User from "../models/user";
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -279,3 +280,41 @@ export const getCourses = async (req, res) => {
     console.log(error);
   }
 };
+
+export const checkEnrollment = async (req, res) => {
+  const { courseId } = req.params;
+  // check if course with that id is already in user's courses array
+  const user = await User.findById(req.user._id).exec();
+  console.log("USER COURSES => ", user);
+  let ids = [];
+  if (user.courses) {
+    for (let i = 0; i < user.courses.length; i++) {
+      ids.push(user.courses[i].toString());
+    }
+  }
+  res.json({
+    status: ids && ids.includes(courseId),
+    course: await Course.findById(courseId).exec(),
+  });
+};
+
+export const freeEnrollment = async (req, res) => {
+  const { courseId } = req.body;
+  // check if course with that id is already in user's courses array
+  const user = await User.findById(req.user._id).exec();
+  console.log("USER COURSES => ", user);
+  let ids = [];
+  if (user.courses) {
+    for (let i = 0; i < user.courses.length; i++) {
+      ids.push(user.courses[i].toString());
+    }
+  }
+  if (!ids.includes(courseId)) {
+    user.courses.push(courseId);
+    await user.save();
+  }
+  res.json({
+    message: "Congratulations! You have successfully enrolled",
+    course: await Course.findById(courseId).exec(),
+  });
+}
