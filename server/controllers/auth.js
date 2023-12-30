@@ -1,6 +1,15 @@
 import User from "../models/user";
 import { comparePassword, hashPassword } from "../utils/auth_helpers";
 import jwt from "jsonwebtoken";
+import AWS from "aws-sdk";
+
+const awsConfig = {
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+  apiVersion: process.env.AWS_API_VERSION,
+};
+const SES = new AWS.SES(awsConfig);
 
 export const register = async (req, res) => {
   try {
@@ -45,11 +54,11 @@ export const login = async (req, res) => {
     });
     user.password = undefined;
     // send back as response to client
-    res.cookie("token", token, {
-      httpOnly: true,
-      // secure: true, // only works on https
+
+    res.json({
+      token,
+      user,
     });
-    res.json(user);
   } catch (err) {
     console.log(err);
     return res.status(400).send("Error. Try again.");
@@ -73,4 +82,37 @@ export const currentUser = async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const sendTestEmail = async (req, res) => {
+  // send email
+  const params = {
+    Source: process.env.EMAIL_FROM,
+    Destination: { ToAddresses: ["kebederaz@gmail.com"] },
+    ReplyToAddresses: [process.env.EMAIL_FROM],
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: `
+                    <html>
+
+                    <h1>Reset Password Link</h1>
+                    <p>Please use the following link to reset your password</p>
+                    
+                    </html>
+                `,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: "Password reset link",
+      },
+    },
+  };
+  const emailSent = SES.sendEmail(params).promise();
+  emailSent.then((data) => {
+    console.log(data);
+    res.json({ ok: true });
+  });
 };

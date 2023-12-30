@@ -30,6 +30,7 @@ const userSchema = new Schema(
       default: ["Subscriber"],
       enum: ["Subscriber", "Instructor", "Admin"],
     },
+    courses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
     stripe_account_id: "",
     stripe_seller: {},
     stripeSession: {},

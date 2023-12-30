@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { SyncOutlined } from "@ant-design/icons";
@@ -6,21 +6,21 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Context } from "../context";
 
-const { state, dispatch } = useContext(Context);
 
-const router = useRouter();
-console.log("STATE", state);
 
-useEffect(() => {
-  if (state.user !== null) router.push("/");
-}, [state.user]);
 
 const Register = () => {
   const [name, setName] = useState("Ryan");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false); // this is for the loading spinner
+  const { state, dispatch } = useContext(Context);
 
+  useEffect(() => {
+    if (state.user !== null) router.push("/");
+  }, [state.user]);
+  const router = useRouter();
+  console.log("STATE", state);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -35,6 +35,7 @@ const Register = () => {
       console.log("REGISTER RESPONSE", data);
       toast.success("Registration successful. Please login.");
       setLoading(false);
+      router.push("/login");
     } catch (err) {
       console.log(err);
       if (err.response.status === 400) toast.error(err.response.data);

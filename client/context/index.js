@@ -30,6 +30,7 @@ const Provider = ({ children }) => {
 
   axios.interceptors.response.use(
     function (response) {
+      console.log("INTERCEPTOR ON RESPONSE", response);
       return response;
     },
     function (error) {
