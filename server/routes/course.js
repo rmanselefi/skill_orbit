@@ -20,7 +20,8 @@ import {
   unpublishCourse,
   getCourses,
   checkEnrollment,
-  freeEnrollment
+  freeEnrollment,
+  paidEnrollment,
 } from "../controllers/course";
 
 router.get("/courses", getCourses);
@@ -41,6 +42,6 @@ router.put("/course/:slug", verifyToken, isInstuctor, update);
 router.get("/course/check-enrollment/:courseId", verifyToken, checkEnrollment);
 
 router.post("/free-enrollment", verifyToken, freeEnrollment);
-
+router.post("/paid-enrollment", verifyToken, paidEnrollment);
 
 module.exports = router;

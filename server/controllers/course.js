@@ -6,6 +6,11 @@ import fs from "fs";
 import { nanoid } from "nanoid";
 import { Console } from "console";
 import User from "../models/user";
+
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2020-08-27",
+});
+
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -68,11 +73,13 @@ export const create = async (req, res) => {
 
 export const getCourse = async (req, res) => {
   try {
+    console.log("GET COURSE", req.params.slug);
     const course = await Course.findOne({
       slug: req.params.slug,
     })
       .populate("instructor", "_id name")
       .exec();
+    console.log("COURSE => ", course);
     res.json(course);
   } catch (err) {
     console.log(err);
@@ -317,4 +324,55 @@ export const freeEnrollment = async (req, res) => {
     message: "Congratulations! You have successfully enrolled",
     course: await Course.findById(courseId).exec(),
   });
-}
+};
+
+export const paidEnrollment = async (req, res) => {
+  try {
+    // check if course is free or paid
+    const { courseId } = req.body;
+    const course = await Course.findById(courseId)
+      .populate("instructor")
+      .exec();
+
+    const paidFor = course.paid;
+    if (!paidFor) return;
+
+    // application fee 30%
+
+    const fee = (course.price * 30) / 100;
+    // create session
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      // purchase details
+      line_items: [
+        {
+          name: course.title,
+          amount: Math.round(course.price.toFixed(2)) * 100,
+          currency: "usd",
+          quantity: 1,
+        },
+      ],
+      // charge buyer and transfer remaining blance to seller
+      payment_intent_data: {
+        application_fee_amount: Math.round(fee.toFixed(2)) * 100,
+        transfer_data: {
+          destination: course.instructor.stripe_account_id,
+        },
+      },
+      success_url: `${process.env.STRIPE_SUCCESS_URL}/${course._id}`,
+      cancel_url: process.env.STRIPE_CANCEL_URL,
+    });
+
+    console.log("SESSION => ", session);
+
+    await User.findByIdAndUpdate(req.user._id, {
+      stripeSession: session,
+    }).exec();
+
+    res.send(session);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("Enrollment create failed");
+  }
+};

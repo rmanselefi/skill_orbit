@@ -10,7 +10,7 @@ import ReactPlayer from "react-player";
 import { Context } from "../../context";
 import SingleCourseLessons from "../../components/cards/SingleCourseLessons";
 import { toast } from "react-toastify";
-import { set } from "mongoose";
+import { loadStripe } from "@stripe/stripe-js";
 
 const SingleCourse = () => {
   const router = useRouter();
@@ -52,6 +52,11 @@ const SingleCourse = () => {
 
   const handlePaidEnrollment = async () => {
     try {
+      setLoading(true);
+      if (!user) router.push("/login");
+      if (enrolled.status)
+        return router.push(`/user/course/${enrolled.course.slug}`);
+
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/paid-enrollment`,
         {
@@ -59,9 +64,16 @@ const SingleCourse = () => {
         }
       );
       console.log("PAID ENROLLMENT => ", data);
+
+      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+      stripe.redirectToCheckout({
+        sessionId: data.id,
+      });
+      setLoading(false);
       // router.push(`/user/course/${slug}`);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -82,7 +94,7 @@ const SingleCourse = () => {
       toast("Enrolled! Check your dashboard");
       setLoading(false);
 
-     router.push(`/user/course/${data.course.slug}`);
+      router.push(`/user/course/${data.course.slug}`);
     } catch (error) {
       console.log(error);
       toast("Enrollment failed. Try again");
