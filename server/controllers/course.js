@@ -77,7 +77,7 @@ export const getCourse = async (req, res) => {
     const course = await Course.findOne({
       slug: req.params.slug,
     })
-      .populate("instructor", "_id name")
+      .populate("instructor")
       .exec();
     console.log("COURSE => ", course);
     res.json(course);
@@ -374,5 +374,33 @@ export const paidEnrollment = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).send("Enrollment create failed");
+  }
+};
+
+export const stripeSuccess = async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.courseId).exec();
+
+    const user = await User.findById(req.user._id).exec();
+
+    if (!user.stripeSession.id) return;
+
+    const session = await stripe.checkout.sessions.retrieve(
+      user.stripeSession.id
+    );
+
+    if (session.payment_status === "paid") {
+      await User.findByIdAndUpdate(user._id, {
+        $addToSet: { courses: course._id },
+        $set: { stripeSession: {} },
+      }).exec();
+    }
+
+    res.json({ success: true, course });
+  } catch (error) {
+    console.log(error);
+    res.json({
+      success: false,
+    });
   }
 };

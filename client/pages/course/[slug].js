@@ -32,10 +32,11 @@ const SingleCourse = () => {
   }, [slug]);
 
   useEffect(() => {
-    if (user && course) checkEnrollment();
-  }, [course.lessons]);
+    if (user && course._id) checkEnrollment();
+  }, [course, user]);
 
   const checkEnrollment = async () => {
+    console.log("CHECK ENROLLMENT === >", course);
     const { data } = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/course/check-enrollment/${course._id}`
     );

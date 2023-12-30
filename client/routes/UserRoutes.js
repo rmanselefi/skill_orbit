@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { SyncOutlined } from "@ant-design/icons";
 import UserNav from "../components/nav/UserNav";
 
-const UserRoute = ({ children }) => {
+const UserRoute = ({ children, showNav = true }) => {
   const [ok, setOk] = useState(true);
   const router = useRouter();
   const {
@@ -39,9 +39,11 @@ const UserRoute = ({ children }) => {
       ) : (
         <div className="container-fluid">
           <div className="row">
-            <div className="col-md-2">
-              <UserNav />
-            </div>
+            {showNav && (
+              <div className="col-md-2">
+                <UserNav />
+              </div>
+            )}
             <div className="col-md-10">{children}</div>
           </div>
         </div>
