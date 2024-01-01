@@ -78,7 +78,7 @@ const SingleCourse = () => {
     }
   };
 
-  const handleFreeEnrollment = async () => {
+  const handleFreeEnrollment = async (e) => {
     e.preventDefault();
 
     try {

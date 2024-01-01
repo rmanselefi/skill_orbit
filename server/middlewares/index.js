@@ -1,6 +1,7 @@
 import { expressjwt } from "express-jwt";
 import jwt from "jsonwebtoken";
 import User from "../models/user";
+import Course from "../models/course";
 
 export const requireSignin = expressjwt({
   getToken: (req, res) => {
@@ -42,6 +43,25 @@ export const isInstuctor = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id).exec();
     if (!user.role.includes("Instructor")) {
+      return res.sendStatus(403);
+    } else {
+      next();
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const isEnrolled = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).exec();
+    const course = await Course.findOne({ slug: req.params.slug }).exec();
+    let ids = [];
+    for (let i = 0; i < user.courses.length; i++) {
+      ids.push(user.courses[i].toString());
+    }
+    console.log("USER COURSES", course);
+    if (!ids.includes(course._id.toString())) {
       return res.sendStatus(403);
     } else {
       next();

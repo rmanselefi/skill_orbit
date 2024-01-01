@@ -404,3 +404,31 @@ export const stripeSuccess = async (req, res) => {
     });
   }
 };
+
+export const getUserCourses = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).exec();
+    if (!user.courses) return res.json([]);
+
+    const courses = await Course.find({ _id: { $in: user.courses } }).populate("instructor", "_id name").exec();
+    res.json(courses);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("Enrollment create failed");
+  }
+};
+
+export const getUserCourse = async (req, res) => {
+  try {
+    console.log("GET COURSE", req.params.slug);
+    const course = await Course.findOne({
+      slug: req.params.slug,
+    })
+      .populate("instructor")
+      .exec();
+    console.log("COURSE => ", course);
+    res.json(course);
+  } catch (err) {
+    console.log(err);
+  }
+};
