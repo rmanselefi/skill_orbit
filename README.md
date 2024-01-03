@@ -1,3 +1,7 @@
-# edemy
+# Skill Orbit
 
-A simple marketplace like udemy
+A simple marketplace for learning materials.
+
+Frontend: NextJS, Context API, Axios, Stripe
+Backend: Node Js, Express JS, Mongo DB, AWS, Stripe
+
